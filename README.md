@@ -200,10 +200,13 @@ I've assumed that tasks can have identical titles, that "completing" a completed
 
 # Answers to questions
 1. How did you handle API errors?
+
     Just by returning the proper code at the endpoint and continuing to serve requests, but I used Pydantic to handle some of the additional logic.
 
 2. What tests would you write if given more time?
+
     I think that I was pretty thorough with my tests for the backend, but I don't have any tests in place for the frontend.
 
 3. What would you improve with 1 extra hour?
+
     I would definitely start looking into data durability, since I still keep the tasks in memory. I was going to use PostGres but I ran out of time.
