@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
+import { useState, useEffect } from 'react';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -103,80 +102,80 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Task Manager</h1>
+    <div className="min-h-screen">
+      <header className="bg-app-dark p-5 text-white text-center shadow-md">
+        <h1 className="text-4xl font-semibold">Task Manager</h1>
       </header>
 
-      <div className="container">
+      <div className="max-w-3xl mx-auto p-5">
         {/* Stats Section */}
-        <div className="stats">
-          <h2>Statistics</h2>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <span className="stat-label">Total:</span>
-              <span className="stat-value">{stats.total}</span>
+        <div className="bg-white p-5 rounded-lg mb-5 shadow-md">
+          <h2 className="mb-4 text-app-dark text-2xl">Statistics</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex flex-col items-center p-4 bg-gray-50 rounded-md">
+              <span className="text-sm text-gray-600 mb-1">Total:</span>
+              <span className="text-3xl font-bold text-app-dark">{stats.total}</span>
             </div>
-            <div className="stat-item">
-              <span className="stat-label">Completed:</span>
-              <span className="stat-value">{stats.completed}</span>
+            <div className="flex flex-col items-center p-4 bg-gray-50 rounded-md">
+              <span className="text-sm text-gray-600 mb-1">Completed:</span>
+              <span className="text-3xl font-bold text-app-dark">{stats.completed}</span>
             </div>
-            <div className="stat-item">
-              <span className="stat-label">Pending:</span>
-              <span className="stat-value">{stats.pending}</span>
+            <div className="flex flex-col items-center p-4 bg-gray-50 rounded-md">
+              <span className="text-sm text-gray-600 mb-1">Pending:</span>
+              <span className="text-3xl font-bold text-app-dark">{stats.pending}</span>
             </div>
           </div>
         </div>
 
         {/* Add Task Form */}
-        <div className="add-task">
-          <h2>Add New Task</h2>
-          <form onSubmit={addTask}>
+        <div className="bg-white p-5 rounded-lg mb-5 shadow-md">
+          <h2 className="mb-4 text-app-dark text-2xl">Add New Task</h2>
+          <form onSubmit={addTask} className="flex flex-col md:flex-row gap-2.5">
             <input
               type="text"
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               placeholder="Enter task title..."
-              className="task-input"
+              className="flex-1 px-4 py-2.5 border-2 border-gray-300 rounded-md text-base focus:outline-none focus:border-app-dark"
             />
-            <button type="submit" className="btn btn-add">
+            <button type="submit" className="bg-app-dark text-white px-5 py-2.5 rounded-md text-base cursor-pointer transition-colors duration-200 hover:bg-[#1a1d23]">
               Add Task
             </button>
           </form>
         </div>
 
         {/* Error Message */}
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className="bg-red-100 text-red-800 px-3 py-2.5 rounded-md mb-5 border border-red-300">{error}</div>}
 
         {/* Tasks List */}
-        <div className="tasks-section">
-          <h2>Tasks</h2>
+        <div className="bg-white p-5 rounded-lg shadow-md">
+          <h2 className="mb-4 text-app-dark text-2xl">Tasks</h2>
           {loading ? (
             <p>Loading tasks...</p>
           ) : tasks.length === 0 ? (
-            <p className="no-tasks">No tasks yet. Add one above!</p>
+            <p className="text-center text-gray-600 py-10 px-5 text-lg">No tasks yet. Add one above!</p>
           ) : (
-            <ul className="task-list">
+            <ul className="list-none">
               {tasks.map(task => (
-                <li key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
-                  <div className="task-info">
-                    <span className="task-title">{task.title}</span>
-                    <span className="task-status">
+                <li key={task.id} className={`flex flex-col md:flex-row justify-between items-start md:items-center p-4 border-2 border-gray-200 rounded-md mb-2.5 transition-all duration-200 hover:border-app-dark hover:shadow-md ${task.completed ? 'bg-gray-50 opacity-80' : ''}`}>
+                  <div className="flex flex-col gap-1 flex-1 mb-2 md:mb-0">
+                    <span className={`text-lg font-medium ${task.completed ? 'line-through text-gray-500' : 'text-app-dark'}`}>{task.title}</span>
+                    <span className="text-sm text-gray-600">
                       {task.completed ? '✓ Completed' : '○ Pending'}
                     </span>
                   </div>
-                  <div className="task-actions">
+                  <div className="flex gap-2.5 w-full md:w-auto">
                     {!task.completed && (
                       <button
                         onClick={() => completeTask(task.id)}
-                        className="btn btn-complete"
+                        className="flex-1 md:flex-initial bg-green-600 text-white px-4 py-2 rounded-md text-sm cursor-pointer transition-colors duration-200 hover:bg-green-700"
                       >
                         Complete
                       </button>
                     )}
                     <button
                       onClick={() => deleteTask(task.id)}
-                      className="btn btn-delete"
+                      className="flex-1 md:flex-initial bg-red-600 text-white px-4 py-2 rounded-md text-sm cursor-pointer transition-colors duration-200 hover:bg-red-700"
                     >
                       Delete
                     </button>

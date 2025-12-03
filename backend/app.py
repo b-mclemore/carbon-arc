@@ -1,5 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
+from pydantic import ValidationError
+from typing import Dict, Tuple
+
+from schemas import TaskCreate, TaskResponse, StatsResponse
 
 app = Flask(__name__)
 CORS(app)
@@ -10,67 +14,80 @@ next_id = 1
 
 
 @app.route('/tasks', methods=['GET'])
-def get_tasks():
+def get_tasks() -> Tuple[Response, int]:
     """List all tasks"""
-    return jsonify(list(tasks.values())), 200
+    task_list = [TaskResponse(**task).model_dump() for task in tasks.values()]
+    return jsonify(task_list), 200
 
 
 @app.route('/tasks', methods=['POST'])
-def create_task():
+def create_task() -> Tuple[Response, int]:
     """Create a new task"""
     global next_id
 
     data = request.get_json()
 
-    if not data or 'title' not in data:
-        return jsonify({'error': 'Title is required'}), 400
+    if not data:
+        return jsonify({'error': 'Request body is required'}), 400
 
-    task = {
-        'id': next_id,
-        'title': data['title'],
-        'completed': False
-    }
+    try:
+        # Validate request data with Pydantic
+        task_create = TaskCreate(**data)
 
-    tasks[next_id] = task
-    next_id += 1
+        # Create task dict
+        task = {
+            'id': next_id,
+            'title': task_create.title,
+            'completed': False
+        }
 
-    return jsonify(task), 201
+        tasks[next_id] = task
+        next_id += 1
+
+        # Return validated response
+        task_response = TaskResponse(**task)
+        return jsonify(task_response.model_dump()), 201
+
+    except ValidationError as e:
+        return jsonify({'error': 'Validation failed', 'details': e.errors()}), 400
 
 
 @app.route('/tasks/<int:task_id>/complete', methods=['PUT'])
-def complete_task(task_id):
+def complete_task(task_id: int) -> Tuple[Response, int]:
     """Mark a task as completed"""
     if task_id not in tasks:
         return jsonify({'error': 'Task not found'}), 404
 
     tasks[task_id]['completed'] = True
-    return jsonify(tasks[task_id]), 200
+    task_response = TaskResponse(**tasks[task_id])
+    return jsonify(task_response.model_dump()), 200
 
 
 @app.route('/tasks/<int:task_id>', methods=['DELETE'])
-def delete_task(task_id):
+def delete_task(task_id: int) -> Tuple[Response, int]:
     """Delete a task"""
     if task_id not in tasks:
         return jsonify({'error': 'Task not found'}), 404
 
     deleted_task = tasks.pop(task_id)
-    return jsonify(deleted_task), 200
+    task_response = TaskResponse(**deleted_task)
+    return jsonify(task_response.model_dump()), 200
 
 
 @app.route('/tasks/stats', methods=['GET'])
-def get_stats():
+def get_stats() -> Tuple[Response, int]:
     """Get task statistics"""
     total = len(tasks)
     completed = sum(1 for task in tasks.values() if task['completed'])
     pending = total - completed
 
-    stats = {
-        'total': total,
-        'completed': completed,
-        'pending': pending
-    }
+    stats_response = StatsResponse(
+        total=total,
+        completed=completed,
+        pending=pending
+    )
 
-    return jsonify(stats), 200
+    return jsonify(stats_response.model_dump()), 200
 
 
 if __name__ == '__main__':
