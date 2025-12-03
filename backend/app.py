@@ -25,7 +25,7 @@ def create_task() -> Tuple[Response, int]:
     """Create a new task"""
     global next_id
 
-    data = request.get_json()
+    data = request.get_json(silent=True)
 
     if not data:
         return jsonify({'error': 'Request body is required'}), 400
@@ -49,7 +49,15 @@ def create_task() -> Tuple[Response, int]:
         return jsonify(task_response.model_dump()), 201
 
     except ValidationError as e:
-        return jsonify({'error': 'Validation failed', 'details': e.errors()}), 400
+        # Convert Pydantic errors to JSON-serializable format
+        error_details = []
+        for error in e.errors():
+            error_details.append({
+                'field': '.'.join(str(x) for x in error['loc']),
+                'message': error['msg'],
+                'type': error['type']
+            })
+        return jsonify({'error': 'Validation failed', 'details': error_details}), 400
 
 
 @app.route('/tasks/<int:task_id>/complete', methods=['PUT'])
