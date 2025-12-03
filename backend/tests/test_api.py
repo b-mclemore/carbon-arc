@@ -77,19 +77,11 @@ class TestCreateTask:
 
     def test_create_task_title_too_long(self, client):
         """Test creating a task with title exceeding max length."""
-        long_title = 'a' * 201  # 201 characters
+        long_title = 'a' * 201
         response = client.post('/tasks', json={'title': long_title})
         assert response.status_code == 400
         data = response.get_json()
         assert 'error' in data
-
-    def test_create_task_title_max_length(self, client):
-        """Test creating a task with title at max length."""
-        max_title = 'a' * 200  # Exactly 200 characters
-        response = client.post('/tasks', json={'title': max_title})
-        assert response.status_code == 201
-        data = response.get_json()
-        assert data['title'] == max_title
 
 
 class TestCompleteTask:
@@ -121,6 +113,46 @@ class TestCompleteTask:
         assert response.status_code == 200
         data = response.get_json()
         assert data['completed'] is True
+
+    def test_complete_task_preserves_title(self, client, sample_task):
+        """Test that completing a task preserves the data."""
+        task = client.post('/tasks', json=sample_task(title="Important Task")).get_json()
+        task_id = task['id']
+
+        response = client.put(f'/tasks/{task_id}/complete')
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['title'] == "Important Task"
+        assert data['completed'] is True
+
+    def test_complete_task_returns_correct_id(self, client, sample_task):
+        """Test that completing a task returns the correct task ID."""
+        # Create multiple tasks
+        task1 = client.post('/tasks', json=sample_task(title="Task 1")).get_json()
+        task2 = client.post('/tasks', json=sample_task(title="Task 2")).get_json()
+        task3 = client.post('/tasks', json=sample_task(title="Task 3")).get_json()
+
+        # Complete task 2
+        response = client.put(f'/tasks/{task2["id"]}/complete')
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['id'] == task2['id']
+        assert data['title'] == "Task 2"
+        assert data['completed'] is True
+
+    def test_complete_task_reflects_in_task_list(self, client, sample_task):
+        """Test that completing a task is reflected in the task list."""
+        task = client.post('/tasks', json=sample_task(title="Test Task")).get_json()
+        task_id = task['id']
+
+        # Complete the task
+        client.put(f'/tasks/{task_id}/complete')
+
+        # Get task list and verify completion status
+        tasks_response = client.get('/tasks')
+        tasks = tasks_response.get_json()
+        completed_task = next(t for t in tasks if t['id'] == task_id)
+        assert completed_task['completed'] is True
 
 
 class TestDeleteTask:

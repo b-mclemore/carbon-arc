@@ -8,7 +8,7 @@ class TestTaskLifecycle:
     """Test complete task lifecycle workflows."""
 
     def test_create_complete_delete_workflow(self, client):
-        """Test the full lifecycle: create → complete → delete."""
+        """Test the full lifecycle: create -> complete -> delete."""
         # Create a task
         create_response = client.post('/tasks', json={'title': 'Integration Test Task'})
         assert create_response.status_code == 201

@@ -3,7 +3,7 @@ from flask_cors import CORS
 from pydantic import ValidationError
 from typing import Dict, Tuple
 
-from schemas import TaskCreate, TaskResponse, StatsResponse
+from models import TaskCreate, TaskResponse, StatsResponse
 
 app = Flask(__name__)
 CORS(app)
@@ -31,7 +31,6 @@ def create_task() -> Tuple[Response, int]:
         return jsonify({'error': 'Request body is required'}), 400
 
     try:
-        # Validate request data with Pydantic
         task_create = TaskCreate(**data)
 
         # Create task dict
@@ -57,7 +56,7 @@ def create_task() -> Tuple[Response, int]:
                 'message': error['msg'],
                 'type': error['type']
             })
-        return jsonify({'error': 'Validation failed', 'details': error_details}), 400
+        return jsonify({'error': 'Task validation failed', 'details': error_details}), 400
 
 
 @app.route('/tasks/<int:task_id>/complete', methods=['PUT'])

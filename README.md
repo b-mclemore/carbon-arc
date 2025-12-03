@@ -172,7 +172,7 @@ pytest
 
 ```bash
 pytest tests/test_api.py -v
-pytest tests/test_schemas.py -v
+pytest tests/test_models.py -v
 pytest tests/test_integration.py -v
 ```
 
@@ -185,7 +185,7 @@ docker-compose run backend pytest
 ### Test Structure
 
 - `tests/test_api.py` - API endpoint tests (GET, POST, PUT, DELETE, stats)
-- `tests/test_schemas.py` - Pydantic schema validation tests
+- `tests/test_models.py` - Pydantic model validation tests
 - `tests/test_integration.py` - Integration workflow tests
 - `tests/conftest.py` - pytest fixtures and configuration
 

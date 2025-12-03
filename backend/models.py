@@ -1,11 +1,11 @@
 """
-Pydantic schemas for request/response validation.
+Pydantic models for request/response validation.
 """
 from pydantic import BaseModel, Field, field_validator
 
 
 class TaskCreate(BaseModel):
-    """Schema for creating a new task."""
+    """Model for creating a new task."""
     title: str = Field(..., min_length=1, max_length=200, description="Task title")
 
     @field_validator('title')
@@ -24,7 +24,7 @@ class TaskCreate(BaseModel):
 
 
 class TaskResponse(BaseModel):
-    """Schema for task responses."""
+    """Model for task responses."""
     id: int = Field(..., description="Task ID")
     title: str = Field(..., description="Task title")
     completed: bool = Field(..., description="Task completion status")
@@ -33,7 +33,7 @@ class TaskResponse(BaseModel):
 
 
 class StatsResponse(BaseModel):
-    """Schema for task statistics."""
+    """Model for task statistics."""
     total: int = Field(..., ge=0, description="Total number of tasks")
     completed: int = Field(..., ge=0, description="Number of completed tasks")
     pending: int = Field(..., ge=0, description="Number of pending tasks")
